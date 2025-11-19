@@ -4,12 +4,19 @@ require("dotenv").config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const ROOT_DIR = __dirname;
 
 app.use(express.json());
 
-// Serve static files (index.html) from current directory
-app.use(express.static(path.join(__dirname, ".")));
+// Serve static files (like index.html)
+app.use(express.static(ROOT_DIR));
 
+// Root route -> send index.html
+app.get("/", (req, res) => {
+  res.sendFile(path.join(ROOT_DIR, "index.html"));
+});
+
+// /api/ai -> Groq
 app.post("/api/ai", async (req, res) => {
   const { age, severity, duration, symptoms } = req.body;
 
@@ -64,7 +71,7 @@ Rules:
 
     res.json({ reply });
   } catch (err) {
-    console.error(err);
+    console.error("Server error talking to Groq:", err);
     res.status(500).json({ error: "Server error talking to Groq" });
   }
 });
